@@ -1,0 +1,12 @@
+node_modules/
+.next/
+dist/
+backend/.env
+frontend/.env.local
+ai-worker/.env
+__pycache__/
+*.pyc
+venv/
+backend/data/
+backend/.tmp/
+.env

@@ -1,0 +1,12 @@
+{
+  "kind": "collectionType",
+  "collectionName": "bidder_applications",
+  "info": {
+    "singularName": "bidder-application",
+    "pluralName": "bidder-applications",
+    "displayName": "Bidder Application"
+  },
+  "options": { "draftAndPublish": true },
+  "pluginOptions": {},
+  "attributes": {}
+}

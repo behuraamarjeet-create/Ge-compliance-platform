@@ -1,0 +1,12 @@
+{
+  "kind": "collectionType",
+  "collectionName": "integration_configs",
+  "info": {
+    "singularName": "integration-config",
+    "pluralName": "integration-configs",
+    "displayName": "Integration Config"
+  },
+  "options": { "draftAndPublish": false },
+  "pluginOptions": {},
+  "attributes": {}
+}

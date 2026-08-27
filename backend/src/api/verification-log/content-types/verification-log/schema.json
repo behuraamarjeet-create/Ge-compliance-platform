@@ -1,0 +1,12 @@
+{
+  "kind": "collectionType",
+  "collectionName": "verification_logs",
+  "info": {
+    "singularName": "verification-log",
+    "pluralName": "verification-logs",
+    "displayName": "Verification Log"
+  },
+  "options": { "draftAndPublish": false },
+  "pluginOptions": {},
+  "attributes": {}
+}

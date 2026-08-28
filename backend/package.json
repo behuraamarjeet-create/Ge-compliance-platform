@@ -21,6 +21,17 @@
     "npm": ">=6.0.0"
   },
   "allowScripts": {
-    "better-sqlite3@11.10.0": true
+    "better-sqlite3@11.10.0": true,
+    "@swc/core@1.16.1": true,
+    "esbuild@0.24.2": true,
+    "sharp@0.35.3": true,
+    "core-js-pure@3.50.0": true
+  },
+  "overrides": {
+    "overrides": {
+  "esbuild": "^0.25.0",
+  "react-router": "^6.29.0",
+  "react-router-dom": "^6.29.0"
+}
   }
 }

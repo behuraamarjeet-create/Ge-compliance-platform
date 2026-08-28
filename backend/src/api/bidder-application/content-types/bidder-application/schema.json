@@ -6,7 +6,40 @@
     "pluralName": "bidder-applications",
     "displayName": "Bidder Application"
   },
-  "options": { "draftAndPublish": true },
+  "options": {
+    "draftAndPublish": true
+  },
   "pluginOptions": {},
-  "attributes": {}
+  "attributes": {
+    "gstNumber": {
+      "type": "string"
+    },
+    "panNumber": {
+      "type": "string"
+    },
+    "udyamId": {
+      "type": "string"
+    },
+    "companyName": {
+      "type": "string"
+    },
+    "statusId": {
+      "type": "enumeration",
+      "enum": [
+        "Pending",
+        "Verified",
+        "Rejected"
+      ]
+    },
+    "documents": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  }
 }

@@ -6,7 +6,32 @@
     "pluralName": "verification-logs",
     "displayName": "Verification Log"
   },
-  "options": { "draftAndPublish": false },
+  "options": {
+    "draftAndPublish": false
+  },
   "pluginOptions": {},
-  "attributes": {}
+  "attributes": {
+    "bidder": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::bidder-application.bidder-application"
+    },
+    "complianceScore": {
+      "type": "decimal"
+    },
+    "riskLevel": {
+      "type": "enumeration",
+      "enum": [
+        "Low",
+        "Medium",
+        "High"
+      ]
+    },
+    "aiSource": {
+      "type": "string"
+    },
+    "details": {
+      "type": "blocks"
+    }
+  }
 }

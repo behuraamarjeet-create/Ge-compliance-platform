@@ -6,7 +6,19 @@
     "pluralName": "integration-configs",
     "displayName": "Integration Config"
   },
-  "options": { "draftAndPublish": false },
+  "options": {
+    "draftAndPublish": false
+  },
   "pluginOptions": {},
-  "attributes": {}
+  "attributes": {
+    "isLiveMode": {
+      "type": "boolean"
+    },
+    "apiKey": {
+      "type": "string"
+    },
+    "dbUrl": {
+      "type": "string"
+    }
+  }
 }

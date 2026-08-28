@@ -10,3 +10,4 @@ venv/
 backend/data/
 backend/.tmp/
 .env
+.env.ai

@@ -455,16 +455,25 @@ export interface ApiBidderApplicationBidderApplication
     draftAndPublish: true;
   };
   attributes: {
+    companyName: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    documents: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    gstNumber: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::bidder-application.bidder-application'
     > &
       Schema.Attribute.Private;
+    panNumber: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
+    statusId: Schema.Attribute.Enumeration<['Pending', 'Verified', 'Rejected']>;
+    udyamId: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -483,9 +492,12 @@ export interface ApiIntegrationConfigIntegrationConfig
     draftAndPublish: false;
   };
   attributes: {
+    apiKey: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    dbUrl: Schema.Attribute.String;
+    isLiveMode: Schema.Attribute.Boolean;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -511,9 +523,16 @@ export interface ApiVerificationLogVerificationLog
     draftAndPublish: false;
   };
   attributes: {
+    aiSource: Schema.Attribute.String;
+    bidder: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::bidder-application.bidder-application'
+    >;
+    complianceScore: Schema.Attribute.Decimal;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    details: Schema.Attribute.Blocks;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -521,6 +540,7 @@ export interface ApiVerificationLogVerificationLog
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
+    riskLevel: Schema.Attribute.Enumeration<['Low', 'Medium', 'High']>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

@@ -1,0 +1,22 @@
+{
+  "kind": "collectionType",
+  "collectionName": "epfo_databases",
+  "info": {
+    "singularName": "epfo-database",
+    "pluralName": "epfo-databases",
+    "displayName": "EPFO Database"
+  },
+  "options": { "draftAndPublish": true },
+  "pluginOptions": {},
+  "attributes": {
+    "establishmentCode": { "type": "string", "unique": true },
+    "establishmentName": { "type": "string" },
+    "status": {
+      "type": "enumeration",
+      "enum": ["Compliant", "Non-Compliant", "Defaulter"],
+      "default": "Compliant"
+    },
+    "lastComplianceDate": { "type": "date" },
+    "employeeCount": { "type": "integer" }
+  }
+}

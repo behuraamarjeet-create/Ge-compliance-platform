@@ -32,6 +32,15 @@
     },
     "details": {
       "type": "blocks"
+    },
+    "timestamp": {
+      "type": "datetime"
+    },
+    "action": {
+      "type": "string"
+    },
+    "detailsLog": {
+      "type": "json"
     }
   }
 }

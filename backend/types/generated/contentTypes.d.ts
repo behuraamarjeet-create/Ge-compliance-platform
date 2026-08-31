@@ -455,7 +455,10 @@ export interface ApiBidderApplicationBidderApplication
     draftAndPublish: true;
   };
   attributes: {
+    aiRecommendation: Schema.Attribute.Text;
+    bidderName: Schema.Attribute.String;
     companyName: Schema.Attribute.String;
+    complianceScore: Schema.Attribute.Decimal;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -463,7 +466,7 @@ export interface ApiBidderApplicationBidderApplication
       'images' | 'files' | 'videos' | 'audios',
       true
     >;
-    gstNumber: Schema.Attribute.String;
+    gstin: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -473,7 +476,111 @@ export interface ApiBidderApplicationBidderApplication
     panNumber: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     statusId: Schema.Attribute.Enumeration<['Pending', 'Verified', 'Rejected']>;
+    tender: Schema.Attribute.Relation<'oneToOne', 'api::tender.tender'>;
     udyamId: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    verificationlog: Schema.Attribute.JSON;
+  };
+}
+
+export interface ApiBlacklistDatabaseBlacklistDatabase
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'blacklist_databases';
+  info: {
+    displayName: 'BlacklistDatabase';
+    pluralName: 'blacklist-databases';
+    singularName: 'blacklist-database';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    debarredUntil: Schema.Attribute.Date;
+    entityName: Schema.Attribute.String;
+    gstin: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::blacklist-database.blacklist-database'
+    > &
+      Schema.Attribute.Private;
+    pan: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    reason: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiGemPortalGemPortal extends Struct.CollectionTypeSchema {
+  collectionName: 'gem_portals';
+  info: {
+    displayName: 'GemPortal';
+    pluralName: 'gem-portals';
+    singularName: 'gem-portal';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    bidders: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::bidder-application.bidder-application'
+    >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::gem-portal.gem-portal'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    statusId: Schema.Attribute.Enumeration<['Open', 'Closed', 'Awarded']>;
+    tenderId: Schema.Attribute.String & Schema.Attribute.Unique;
+    tenderTitle: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiGstDatabaseGstDatabase extends Struct.CollectionTypeSchema {
+  collectionName: 'gst_databases';
+  info: {
+    displayName: 'GstDatabase';
+    pluralName: 'gst-databases';
+    singularName: 'gst-database';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    gstin: Schema.Attribute.String & Schema.Attribute.Unique;
+    lastReturnFiled: Schema.Attribute.Date;
+    legalName: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::gst-database.gst-database'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    statusId: Schema.Attribute.Enumeration<
+      ['Active', 'Cancelled', 'Suspended', 'De-registered']
+    >;
+    textComplianceRating: Schema.Attribute.Integer;
+    tradeName: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -511,6 +618,103 @@ export interface ApiIntegrationConfigIntegrationConfig
   };
 }
 
+export interface ApiPanDatabasePanDatabase extends Struct.CollectionTypeSchema {
+  collectionName: 'pan_databases';
+  info: {
+    displayName: 'PanDatabase';
+    pluralName: 'pan-databases';
+    singularName: 'pan-database';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    holderName: Schema.Attribute.String;
+    lastItrFiled: Schema.Attribute.Date;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::pan-database.pan-database'
+    > &
+      Schema.Attribute.Private;
+    panNumber: Schema.Attribute.String & Schema.Attribute.Unique;
+    publishedAt: Schema.Attribute.DateTime;
+    statusId: Schema.Attribute.Enumeration<['Valid', 'Invalid', 'Blacklisted']>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiTenderTender extends Struct.CollectionTypeSchema {
+  collectionName: 'tenders';
+  info: {
+    displayName: 'Tenders';
+    pluralName: 'tenders';
+    singularName: 'tender';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    bidderCount: Schema.Attribute.Integer;
+    createdAt: Schema.Attribute.DateTime;
+    createdAtDate: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.Blocks;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::tender.tender'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    statusId: Schema.Attribute.Enumeration<['Open', 'Closed', 'Awarded']>;
+    tenderId: Schema.Attribute.String & Schema.Attribute.Unique;
+    title: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiUdyamDatabaseUdyamDatabase
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'udyam_databases';
+  info: {
+    displayName: 'UdyamDatabase';
+    pluralName: 'udyam-databases';
+    singularName: 'udyam-database';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    catagory: Schema.Attribute.Enumeration<['Micro', 'Small', 'Medium']>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    enterpriseName: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::udyam-database.udyam-database'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    registrationDate: Schema.Attribute.Date;
+    statusId: Schema.Attribute.Enumeration<['Active', 'Expired', 'Cancelled']>;
+    udyamNumber: Schema.Attribute.String & Schema.Attribute.Unique;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiVerificationLogVerificationLog
   extends Struct.CollectionTypeSchema {
   collectionName: 'verification_logs';
@@ -523,6 +727,7 @@ export interface ApiVerificationLogVerificationLog
     draftAndPublish: false;
   };
   attributes: {
+    action: Schema.Attribute.String;
     aiSource: Schema.Attribute.String;
     bidder: Schema.Attribute.Relation<
       'oneToOne',
@@ -533,6 +738,7 @@ export interface ApiVerificationLogVerificationLog
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     details: Schema.Attribute.Blocks;
+    detailsLog: Schema.Attribute.JSON;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -541,6 +747,7 @@ export interface ApiVerificationLogVerificationLog
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
     riskLevel: Schema.Attribute.Enumeration<['Low', 'Medium', 'High']>;
+    timestamp: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -907,7 +1114,13 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::bidder-application.bidder-application': ApiBidderApplicationBidderApplication;
+      'api::blacklist-database.blacklist-database': ApiBlacklistDatabaseBlacklistDatabase;
+      'api::gem-portal.gem-portal': ApiGemPortalGemPortal;
+      'api::gst-database.gst-database': ApiGstDatabaseGstDatabase;
       'api::integration-config.integration-config': ApiIntegrationConfigIntegrationConfig;
+      'api::pan-database.pan-database': ApiPanDatabasePanDatabase;
+      'api::tender.tender': ApiTenderTender;
+      'api::udyam-database.udyam-database': ApiUdyamDatabaseUdyamDatabase;
       'api::verification-log.verification-log': ApiVerificationLogVerificationLog;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;

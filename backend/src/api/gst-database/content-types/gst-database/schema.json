@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "gst_databases",
+  "info": {
+    "singularName": "gst-database",
+    "pluralName": "gst-databases",
+    "displayName": "GstDatabase"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "gstin": {
+      "type": "string",
+      "unique": true
+    },
+    "legalName": {
+      "type": "string"
+    },
+    "tradeName": {
+      "type": "string"
+    },
+    "statusId": {
+      "type": "enumeration",
+      "enum": [
+        "Active",
+        "Cancelled",
+        "Suspended",
+        "De-registered"
+      ]
+    },
+    "lastReturnFiled": {
+      "type": "date"
+    },
+    "textComplianceRating": {
+      "type": "integer"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "blacklist_databases",
+  "info": {
+    "singularName": "blacklist-database",
+    "pluralName": "blacklist-databases",
+    "displayName": "BlacklistDatabase"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "entityName": {
+      "type": "string"
+    },
+    "gstin": {
+      "type": "string"
+    },
+    "pan": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "debarredUntil": {
+      "type": "date"
+    }
+  }
+}

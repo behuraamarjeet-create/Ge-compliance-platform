@@ -1,0 +1,22 @@
+{
+  "kind": "collectionType",
+  "collectionName": "startup_india_databases",
+  "info": {
+    "singularName": "startup-india-database",
+    "pluralName": "startup-india-databases",
+    "displayName": "Startup India Database"
+  },
+  "options": { "draftAndPublish": true },
+  "pluginOptions": {},
+  "attributes": {
+    "dpiitNumber": { "type": "string", "unique": true },
+    "companyName": { "type": "string" },
+    "status": {
+      "type": "enumeration",
+      "enum": ["Recognized", "Expired", "Cancelled"],
+      "default": "Recognized"
+    },
+    "recognitionDate": { "type": "date" },
+    "expiryDate": { "type": "date" }
+  }
+}

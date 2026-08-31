@@ -1,0 +1,35 @@
+{
+  "kind": "collectionType",
+  "collectionName": "gem_portals",
+  "info": {
+    "singularName": "gem-portal",
+    "pluralName": "gem-portals",
+    "displayName": "GemPortal"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "tenderId": {
+      "type": "string",
+      "unique": true
+    },
+    "tenderTitle": {
+      "type": "string"
+    },
+    "bidders": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::bidder-application.bidder-application"
+    },
+    "statusId": {
+      "type": "enumeration",
+      "enum": [
+        "Open",
+        "Closed",
+        "Awarded"
+      ]
+    }
+  }
+}

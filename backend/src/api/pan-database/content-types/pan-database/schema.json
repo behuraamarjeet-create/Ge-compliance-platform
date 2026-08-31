@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "pan_databases",
+  "info": {
+    "singularName": "pan-database",
+    "pluralName": "pan-databases",
+    "displayName": "PanDatabase"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "panNumber": {
+      "type": "string",
+      "unique": true
+    },
+    "holderName": {
+      "type": "string"
+    },
+    "statusId": {
+      "type": "enumeration",
+      "enum": [
+        "Valid",
+        "Invalid",
+        "Blacklisted"
+      ]
+    },
+    "lastItrFiled": {
+      "type": "date"
+    }
+  }
+}

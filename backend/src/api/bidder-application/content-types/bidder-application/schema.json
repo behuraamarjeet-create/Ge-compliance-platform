@@ -11,35 +11,39 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "gstNumber": {
-      "type": "string"
+    "tender": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::tender.tender",
+      "inversedBy": "bidderApplications"
     },
-    "panNumber": {
-      "type": "string"
-    },
-    "udyamId": {
-      "type": "string"
-    },
-    "companyName": {
-      "type": "string"
-    },
-    "statusId": {
-      "type": "enumeration",
-      "enum": [
-        "Pending",
-        "Verified",
-        "Rejected"
-      ]
-    },
+    "bidderName": { "type": "string" },
+    "companyName": { "type": "string" },
+    "gstin": { "type": "string" },
+    "panNumber": { "type": "string" },
+    "udyamId": { "type": "string" },
+    "epfoCode": { "type": "string" },
+    "esicCode": { "type": "string" },
+    "dpiitNumber": { "type": "string" },
+    "nsicNumber": { "type": "string" },
     "documents": {
       "type": "media",
       "multiple": true,
-      "allowedTypes": [
-        "images",
-        "files",
-        "videos",
-        "audios"
-      ]
-    }
+      "allowedTypes": ["images", "files", "videos", "audios"]
+    },
+    "verificationStatus": {
+      "type": "enumeration",
+      "enum": ["Pending", "Processing", "Verified", "Rejected", "Manual Review"],
+      "default": "Pending"
+    },
+    "complianceScore": { "type": "decimal" },
+    "riskLevel": {
+      "type": "enumeration",
+      "enum": ["Low", "Medium", "High", "Critical"]
+    },
+    "aiRecommendation": { "type": "text" },
+    "verificationResult": { "type": "json" },
+    "lastVerifiedAt": { "type": "datetime" },
+    "verificationlog": { "type": "json" }
   }
 }

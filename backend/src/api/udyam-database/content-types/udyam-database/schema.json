@@ -1,0 +1,41 @@
+{
+  "kind": "collectionType",
+  "collectionName": "udyam_databases",
+  "info": {
+    "singularName": "udyam-database",
+    "pluralName": "udyam-databases",
+    "displayName": "UdyamDatabase"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "udyamNumber": {
+      "type": "string",
+      "unique": true
+    },
+    "enterpriseName": {
+      "type": "string"
+    },
+    "catagory": {
+      "type": "enumeration",
+      "enum": [
+        "Micro",
+        "Small",
+        "Medium"
+      ]
+    },
+    "statusId": {
+      "type": "enumeration",
+      "enum": [
+        "Active",
+        "Expired",
+        "Cancelled"
+      ]
+    },
+    "registrationDate": {
+      "type": "date"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "kind": "collectionType",
+  "collectionName": "esic_databases",
+  "info": {
+    "singularName": "esic-database",
+    "pluralName": "esic-databases",
+    "displayName": "ESIC Database"
+  },
+  "options": { "draftAndPublish": true },
+  "pluginOptions": {},
+  "attributes": {
+    "esicCode": { "type": "string", "unique": true },
+    "establishmentName": { "type": "string" },
+    "status": {
+      "type": "enumeration",
+      "enum": ["Compliant", "Non-Compliant", "Defaulter"],
+      "default": "Compliant"
+    },
+    "lastComplianceDate": { "type": "date" }
+  }
+}

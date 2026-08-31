@@ -1,0 +1,23 @@
+{
+  "kind": "collectionType",
+  "collectionName": "nsic_databases",
+  "info": {
+    "singularName": "nsic-database",
+    "pluralName": "nsic-databases",
+    "displayName": "NSIC Database"
+  },
+  "options": { "draftAndPublish": true },
+  "pluginOptions": {},
+  "attributes": {
+    "nsicNumber": { "type": "string", "unique": true },
+    "companyName": { "type": "string" },
+    "status": {
+      "type": "enumeration",
+      "enum": ["Active", "Expired", "Cancelled"],
+      "default": "Active"
+    },
+    "registrationDate": { "type": "date" },
+    "expiryDate": { "type": "date" },
+    "category": { "type": "string" }
+  }
+}

@@ -57,7 +57,7 @@ export default function AuditPage() {
     setLoading(true);
     try {
       const res = await axios.get(
-        `${STRAPI}/api/verification-logs?populate[bidder]=*&sort=timestamp:desc&pagination[limit]=50`
+        `${STRAPI}/api/verification-logs?populate=*&sort=timestamp:desc&pagination[limit]=50`
       );
       const data = res.data.data || [];
       setLogs(data);

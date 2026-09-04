@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Search,
@@ -15,16 +16,30 @@ import {
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/search", icon: LayoutDashboard, label: "Home" },
-  { href: "/search", icon: Search, label: "Tender Search", exact: false },
-  { href: "/tenders", icon: FileText, label: "Tenders" },
-  { href: "/verification", icon: ShieldCheck, label: "Verification" },
-  { href: "/audit", icon: ClipboardList, label: "Audit Logs" },
-  { href: "/settings", icon: Settings, label: "Settings" },
+  { href: "/search", icon: LayoutDashboard, label: "Home", roles: ["Procurement Officer"] },
+  { href: "/search", icon: Search, label: "Tender Search", exact: false, roles: ["Procurement Officer"] },
+  { href: "/tenders", icon: FileText, label: "Tenders", roles: ["Procurement Officer"] },
+  { href: "/verification", icon: ShieldCheck, label: "Verification", roles: ["Procurement Officer"] },
+  { href: "/audit", icon: ClipboardList, label: "Audit Logs", roles: ["Developer"] },
+  { href: "/settings", icon: Settings, label: "Settings", roles: ["Developer"] },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [role, setRole] = useState("Procurement Officer");
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("atc_user");
+    if (!storedUser) return;
+    try {
+      const user = JSON.parse(storedUser);
+      if (user.role === "Developer" || user.role === "Procurement Officer") {
+        setRole(user.role);
+      }
+    } catch {
+      localStorage.removeItem("atc_user");
+    }
+  }, []);
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact === false) return pathname.startsWith(href);
@@ -52,7 +67,7 @@ export function Sidebar() {
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
         <div className="section-label text-white/30 px-3 mb-2">Navigation</div>
 
-        {navItems.map((item) => {
+        {navItems.filter((item) => item.roles.includes(role)).map((item) => {
           const active = isActive(item.href, item.exact);
           const Icon = item.icon;
           return (
@@ -88,11 +103,13 @@ export function Sidebar() {
       <div className="border-t border-white/8 px-4 py-3 flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-navy-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-            PO
+            {role === "Developer" ? "DE" : "PO"}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-white text-xs font-semibold truncate">Procurement Officer</div>
-            <div className="text-white/40 text-2xs truncate">officer@gov.in</div>
+            <div className="text-white text-xs font-semibold truncate">{role}</div>
+            <div className="text-white/40 text-2xs truncate">
+              {role === "Developer" ? "developer@example.com" : "officer@gov.in"}
+            </div>
           </div>
         </div>
       </div>

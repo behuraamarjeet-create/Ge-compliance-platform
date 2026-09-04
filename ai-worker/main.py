@@ -171,7 +171,7 @@ async def extract_file(file: UploadFile = File(...)):
 
 
 @app.post("/verify-bidder/{bidder_id}")
-async def verify_single_bidder(bidder_id: int):
+async def verify_single_bidder(bidder_id: str):
     """Run full compliance verification for a single bidder."""
     try:
         result = run_verification(bidder_id, model=model)

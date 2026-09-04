@@ -20,6 +20,7 @@ const AI_URL = process.env.NEXT_PUBLIC_AI_WORKER_URL || "http://localhost:8000";
 
 type Bidder = {
   id: number;
+documentId?: string;
   
     bidderName: string;
     companyName?: string;
@@ -61,16 +62,23 @@ export default function TenderDetailPage({ params }: { params: { id: string } })
   const [currentStage, setCurrentStage] = useState<StageId | null>(null);
   const [stageStatuses, setStageStatuses] = useState<Partial<Record<StageId, "pending" | "processing" | "done" | "error">>>({});
   const [bidderProgress, setBidderProgress] = useState<BidderProgress[]>([]);
+  const [verificationError, setVerificationError] = useState("");
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const [tenderRes, biddersRes] = await Promise.all([
         axios.get(`${STRAPI}/api/tenders?filters[id][$eq]=${params.id}&populate=*`),
-        axios.get(`${STRAPI}/api/bidder-applications?filters[tender][id][$eq]=${params.id}&populate[documents]=*`),
+        // Strapi 5 relation filters can return no rows for numeric relation IDs.
+        // Fetch the populated relation and filter by both supported identifiers.
+        axios.get(`${STRAPI}/api/bidder-applications?populate=tender&pagination[pageSize]=100`),
       ]);
       setTender(tenderRes.data.data[0]);
-      setBidders(biddersRes.data.data || []);
+      const tenderBidders = (biddersRes.data.data || []).filter((bidder: any) => {
+        const relation = bidder.tender;
+        return relation?.id?.toString() === params.id || relation?.documentId === params.id;
+      });
+      setBidders(tenderBidders);
     } catch (err) {
       console.error("Error fetching tender/bidders:", err);
     } finally {
@@ -83,7 +91,7 @@ export default function TenderDetailPage({ params }: { params: { id: string } })
   }, [fetchData]);
 
   // Animated stage runner for a single bidder
-  const runStagesAnimation = async (bidderName: string, bidderId: number) => {
+  const runStagesAnimation = async (bidderName: string) => {
     setProgressCurrentName(bidderName);
     setStageStatuses({});
 
@@ -99,7 +107,6 @@ export default function TenderDetailPage({ params }: { params: { id: string } })
   const handleVerifyAll = async () => {
     if (!confirm("Run AI compliance verification on all bidders?")) return;
 
-    const bidderIds = bidders.map((b) => b.id);
     const biddersInit: BidderProgress[] = bidders.map((b) => ({
       id: b.id,
       name: b.bidderName || "Bidder",
@@ -110,9 +117,10 @@ export default function TenderDetailPage({ params }: { params: { id: string } })
     setProgressCurrent(0);
     setProgressOpen(true);
     setVerifying(true);
+    setVerificationError("");
 
     try {
-      // Process each bidder with animation
+      // Run the deterministic rule engine against the simulated government databases.
       for (let i = 0; i < bidders.length; i++) {
         const bidder = bidders[i];
         setProgressCurrent(i + 1);
@@ -121,21 +129,63 @@ export default function TenderDetailPage({ params }: { params: { id: string } })
           prev.map((b) => b.id === bidder.id ? { ...b, status: "processing" } : b)
         );
 
-        await runStagesAnimation(bidder.bidderName || "Bidder", bidder.id);
+        const verificationId = bidder.documentId || bidder.id;
+        const verificationRequest = axios.post(`${AI_URL}/verify-bidder/${verificationId}`);
+        await runStagesAnimation(bidder.bidderName || "Bidder");
 
-        setBidderProgress((prev) =>
-          prev.map((b) => b.id === bidder.id ? { ...b, status: "done" } : b)
-        );
-      }
-
-      // Actually call AI worker
-      try {
-        await axios.post(`${AI_URL}/verify-all-bidders`, { ids: bidderIds });
-      } catch {
-        // Best-effort — animation already shown
+        try {
+          const response = await verificationRequest;
+          if (response.data?.error) {
+            throw new Error(response.data.error);
+          }
+          setBidderProgress((prev) =>
+            prev.map((b) => b.id === bidder.id ? { ...b, status: "done" } : b)
+          );
+        } catch (error) {
+          setBidderProgress((prev) =>
+            prev.map((b) => b.id === bidder.id ? { ...b, status: "error" } : b)
+          );
+          throw error;
+        }
       }
 
       await fetchData();
+    } catch (error) {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.detail || error.message
+        : error instanceof Error ? error.message : "Verification failed.";
+      setVerificationError(
+        `Verification stopped: ${message}. No result was marked complete; resolve the service error and try again.`
+      );
+    } finally {
+      setVerifying(false);
+      setTimeout(() => setProgressOpen(false), 1500);
+    }
+  };
+
+  const handleVerifySingle = async (bidder: Bidder) => {
+    if (!confirm(`Verify ${bidder.bidderName || "this bidder"} against the simulated government databases?`)) return;
+
+    setBidderProgress([{ id: bidder.id, name: bidder.bidderName || "Bidder", status: "processing" }]);
+    setProgressCurrent(1);
+    setProgressOpen(true);
+    setVerifying(true);
+    setVerificationError("");
+
+    try {
+      const verificationId = bidder.documentId || bidder.id;
+      const verificationRequest = axios.post(`${AI_URL}/verify-bidder/${verificationId}`);
+      await runStagesAnimation(bidder.bidderName || "Bidder");
+      const response = await verificationRequest;
+      if (response.data?.error) throw new Error(response.data.error);
+      setBidderProgress([{ id: bidder.id, name: bidder.bidderName || "Bidder", status: "done" }]);
+      await fetchData();
+    } catch (error) {
+      setBidderProgress([{ id: bidder.id, name: bidder.bidderName || "Bidder", status: "error" }]);
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.detail || error.message
+        : error instanceof Error ? error.message : "Verification failed.";
+      setVerificationError(`Verification stopped: ${message}. No result was marked complete; resolve the service error and try again.`);
     } finally {
       setVerifying(false);
       setTimeout(() => setProgressOpen(false), 1500);
@@ -241,6 +291,12 @@ export default function TenderDetailPage({ params }: { params: { id: string } })
               </div>
             </div>
           </div>
+          {verificationError && (
+            <div className="mb-5 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <XCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+              <span>{verificationError}</span>
+            </div>
+          )}
           <div className="flex items-center gap-2 flex-shrink-0">
             <Button variant="secondary" size="sm" icon={<RefreshCw className="w-3.5 h-3.5" />} onClick={fetchData}>
               Refresh
@@ -346,12 +402,22 @@ export default function TenderDetailPage({ params }: { params: { id: string } })
                       {a.lastVerifiedAt ? formatDateTime(a.lastVerifiedAt) : <span className="text-gray-300">—</span>}
                     </td>
                     <td className="px-4 py-3">
-                      <Link href={`/bidder/${bidder.id}`}>
-                        <button className="inline-flex items-center gap-1 text-xs font-semibold text-navy-700 hover:text-navy-900 transition-colors group">
-                          View
-                          <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => handleVerifySingle(bidder)}
+                          disabled={verifying}
+                          className="text-xs font-semibold text-navy-700 hover:text-navy-900 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          Verify
                         </button>
-                      </Link>
+                        <Link href={`/bidder/${bidder.id}`}>
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-gray-800 transition-colors group">
+                            View
+                            <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                          </span>
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 );

@@ -2,7 +2,6 @@
 Full verification pipeline for a single bidder.
 Orchestrates: data fetch → rule engine → score → AI text → save.
 """
-
 import json
 import asyncio
 from datetime import datetime, timezone
@@ -100,7 +99,7 @@ Write the summary in plain English. Do not use markdown."""
         return _generate_ai_summary(company_name, score, risk, recommendation, checks, model=None)
 
 
-def run_verification(bidder_id: int, model=None) -> dict[str, Any]:
+def run_verification(bidder_id: str | int, model=None) -> dict[str, Any]:
     """
     Main verification pipeline. Returns structured result dict.
     """
@@ -206,7 +205,8 @@ def run_verification(bidder_id: int, model=None) -> dict[str, Any]:
         save_verification_result(bidder_id, result)
         create_verification_log(bidder_id, f"Verification complete — {recommendation}", result)
     except StrapiClientError as exc:
-        print(f"Warning: Could not save result to Strapi: {exc}")
+        # A verification is not complete until its result and audit event are persisted.
+        raise StrapiClientError(f"Verification calculated but could not be saved: {exc}") from exc
 
     return result
 

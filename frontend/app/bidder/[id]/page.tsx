@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, ReactNode } from "react";
 import axios from "axios";
 import Link from "next/link";
 import {
@@ -55,24 +55,24 @@ interface VerificationResult {
 
 type Bidder = {
   id: number;
-  attributes: {
-    bidderName: string;
-    companyName?: string;
-    gstin?: string;
-    panNumber?: string;
-    udyamId?: string;
-    epfoCode?: string;
-    esicCode?: string;
-    dpiitNumber?: string;
-    nsicNumber?: string;
-    verificationStatus?: string;
-    complianceScore?: number;
-    riskLevel?: string;
-    aiRecommendation?: string;
-    lastVerifiedAt?: string;
-    verificationResult?: VerificationResult | string;
-    documents?: { data: any[] };
-    tender?: { data: { id: number; attributes: { title: string; tenderId: string } } };
+  documentId?: string;
+  bidderName?: string;
+  companyName?: string;
+  gstin?: string;
+  panNumber?: string;
+  udyamId?: string;
+  epfoCode?: string;
+  esicCode?: string;
+  dpiitNumber?: string;
+  nsicNumber?: string;
+  verificationStatus?: string;
+  complianceScore?: number;
+  riskLevel?: string;
+  aiRecommendation?: string;
+  lastVerifiedAt?: string;
+  verificationResult?: VerificationResult | string;
+  documents?: any;
+  tender?: any;
 };
 
 const CHECK_META: Record<string, { label: string; source: string; icon: React.ReactNode }> = {
@@ -119,12 +119,43 @@ export default function BidderDetailPage({ params }: { params: { id: string } })
   const fetchBidder = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await axios.get(
-        `${STRAPI}/api/bidder-applications?filters[id][$eq]=${params.id}&populate[documents]=*&populate[tender][populate][0]=*`
+      let res = await axios.get(
+        `${STRAPI}/api/bidder-applications?filters[id][$eq]=${params.id}&populate=*`
       );
-      setBidder(res.data.data[0]);
+      let data = res.data?.data;
+
+      if (!data || (Array.isArray(data) && data.length === 0)) {
+        res = await axios.get(
+          `${STRAPI}/api/bidder-applications?filters[documentId][$eq]=${params.id}&populate=*`
+        );
+        data = res.data?.data;
+      }
+
+      if (!data || (Array.isArray(data) && data.length === 0)) {
+        res = await axios.get(
+          `${STRAPI}/api/bidder-applications/${params.id}?populate=*`
+        );
+        data = res.data?.data;
+      }
+
+      if (Array.isArray(data)) {
+        setBidder(data[0] || null);
+      } else if (data) {
+        setBidder(data);
+      } else {
+        setBidder(null);
+      }
     } catch (err) {
       console.error("Error fetching bidder:", err);
+      try {
+        const fallbackRes = await axios.get(`${STRAPI}/api/bidder-applications/${params.id}?populate=*`);
+        const fallbackData = fallbackRes.data?.data;
+        if (Array.isArray(fallbackData)) setBidder(fallbackData[0] || null);
+        else if (fallbackData) setBidder(fallbackData);
+        else setBidder(null);
+      } catch {
+        setBidder(null);
+      }
     } finally {
       setLoading(false);
     }
@@ -137,7 +168,8 @@ export default function BidderDetailPage({ params }: { params: { id: string } })
   const handleDecision = async (status: "Verified" | "Rejected" | "Manual Review", reason?: string) => {
     setActionLoading(true);
     try {
-      await axios.patch(`${STRAPI}/api/bidder-applications/${params.id}`, {
+      const docId = bidder?.documentId || bidder?.id || params.id;
+      await axios.put(`${STRAPI}/api/bidder-applications/${docId}`, {
         data: { verificationStatus: status },
       });
       await fetchBidder();
@@ -172,12 +204,12 @@ export default function BidderDetailPage({ params }: { params: { id: string } })
     );
   }
 
-  const a = bidder;
-  const score = a.complianceScore ?? 0;
-  const risk = a.riskLevel || "Unknown";
-  const status = a.verificationStatus || "Pending";
-  const tender = a.tender;
-  const tenderId = a.tender?.data?.id;
+  const a: any = bidder || {};
+  const score = a?.complianceScore ?? 0;
+  const risk = a?.riskLevel || "Unknown";
+  const status = a?.verificationStatus || "Pending";
+  const tender = a?.tender;
+  const tenderId = a?.tender?.data?.id || (a?.tender as any)?.documentId || (a?.tender as any)?.id;
 
   // Parse verificationResult
   let vr: VerificationResult = {};
@@ -234,7 +266,7 @@ export default function BidderDetailPage({ params }: { params: { id: string } })
     <AppShell
       breadcrumb={[
         { label: "Search", href: "/search" },
-        tender ? { label: tender.tenderId, href: tenderId ? `/tender/${tenderId}` : "/search" } : { label: "Tender" },
+        tender ? { label: tender.data?.attributes?.tenderId || "Tender", href: tenderId ? `/tender/${tenderId}` : "/search" } : { label: "Tender" },
         { label: a.bidderName || "Bidder" },
       ]}
     >
@@ -432,8 +464,8 @@ export default function BidderDetailPage({ params }: { params: { id: string } })
                             <span className={cn(
                               "text-2xs font-semibold px-1.5 py-0.5 rounded",
                               item.status === "PASS" ? "bg-green-100 text-green-700" :
-                              item.status === "FAIL" ? "bg-red-100 text-red-700" :
-                              "bg-amber-100 text-amber-700"
+                                item.status === "FAIL" ? "bg-red-100 text-red-700" :
+                                  "bg-amber-100 text-amber-700"
                             )}>
                               {item.status}
                             </span>
@@ -553,8 +585,8 @@ export default function BidderDetailPage({ params }: { params: { id: string } })
                   (score >= 80
                     ? "Most mandatory compliance requirements are satisfied. The bidder's submitted documents align with government database records."
                     : score >= 60
-                    ? "Some compliance requirements require manual review. Specific discrepancies have been identified and should be investigated."
-                    : "Multiple compliance checks have failed. Significant discrepancies detected. Manual review strongly recommended before proceeding."
+                      ? "Some compliance requirements require manual review. Specific discrepancies have been identified and should be investigated."
+                      : "Multiple compliance checks have failed. Significant discrepancies detected. Manual review strongly recommended before proceeding."
                   )}
               </p>
 

@@ -276,7 +276,7 @@ def create_verification_log(bidder_id: str | int, action: str, details: dict[str
             "complianceScore": details.get("overallScore"),
             # Verification logs support Low/Medium/High; Critical is recorded in detailsLog.
             "riskLevel": details.get("riskLevel") if details.get("riskLevel") != "Critical" else "High",
-            "aiSource": "Gemini 1.5 Flash",
+            "aiSource": details.get("aiSource", "AI Worker"),
             "detailsLog": details,
         }
     }
